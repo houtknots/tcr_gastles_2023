@@ -1,12 +1,22 @@
 ---
+# Create OpenStack Services
 - name: Create OpenStack servers
   hosts: localhost
   roles:
     - role: private_key
     - role: network
     - role: server
-  tasks:
 
+# Wait unitl the servers are available
+- name: Wait unitl the servers are available
+  hosts: tcr_webservers
+  gather_facts: false
+  tasks:
+    - name: Wait for instance to spawn and to become reachable
+      wait_for_connection:
+        timeout: 900
+
+# Install packages on hosts
 - name: Install Apache2 and clone GitHub repository
   hosts: tcr_webservers
   become: yes

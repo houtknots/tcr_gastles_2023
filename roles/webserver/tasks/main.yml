@@ -1,8 +1,4 @@
 ---
-- name: Wait for instance to spawn and to become reachable
-  wait_for_connection:
-    timeout: 900
-
 - name: Install Apache2
   apt:
     name: apache2
