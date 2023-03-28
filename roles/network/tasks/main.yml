@@ -1,0 +1,57 @@
+---
+- name: Create private network
+  os_network:
+    auth:
+      auth_url: "{{ lookup('env', 'OS_AUTH_URL') }}"
+      username: "{{ lookup('env', 'OS_USERNAME') }}"
+      password: "{{ lookup('env', 'OS_PASSWORD') }}"
+      project_name: "{{ lookup('env', 'OS_PROJECT_NAME') }}"
+      project_domain_name: "{{ lookup('env', 'OS_USER_DOMAIN_NAME') }}"
+    name: tcr-gastles-2023
+    state: present
+
+- name: Create private subnet
+  os_subnet:
+    auth:
+      auth_url: "{{ lookup('env', 'OS_AUTH_URL') }}"
+      username: "{{ lookup('env', 'OS_USERNAME') }}"
+      password: "{{ lookup('env', 'OS_PASSWORD') }}"
+      project_name: "{{ lookup('env', 'OS_PROJECT_NAME') }}"
+      project_domain_name: "{{ lookup('env', 'OS_USER_DOMAIN_NAME') }}"
+    name: tcr-gastles-2023-subnet
+    state: present
+    network_name: tcr-gastles-2023
+    cidr: 192.168.0.0/24
+    enable_dhcp: yes
+
+- name: Create security group
+  os_security_group:
+    auth:
+      auth_url: "{{ lookup('env', 'OS_AUTH_URL') }}"
+      username: "{{ lookup('env', 'OS_USERNAME') }}"
+      password: "{{ lookup('env', 'OS_PASSWORD') }}"
+      project_name: "{{ lookup('env', 'OS_PROJECT_NAME') }}"
+      project_domain_name: "{{ lookup('env', 'OS_USER_DOMAIN_NAME') }}"
+    name: tcr-gastles-security-group
+    description: Custom security group for HTTP, HTTPS, ICMP, and SSH
+
+- name: Add rules to security group
+  os_security_group_rule:
+    auth:
+      auth_url: "{{ lookup('env', 'OS_AUTH_URL') }}"
+      username: "{{ lookup('env', 'OS_USERNAME') }}"
+      password: "{{ lookup('env', 'OS_PASSWORD') }}"
+      project_name: "{{ lookup('env', 'OS_PROJECT_NAME') }}"
+      project_domain_name: "{{ lookup('env', 'OS_USER_DOMAIN_NAME') }}"
+    security_group: tcr-gastles-security-group
+    protocol: "{{ item.protocol }}"
+    direction: "{{ item.direction }}"
+    port_range_min: "{{ item.port_range_min | default(omit) }}"
+    port_range_max: "{{ item.port_range_max | default(omit) }}"
+    remote_ip_prefix: "{{ item.remote_ip_prefix | default(omit) }}"
+    ethertype: "{{ item.ethertype | default(omit) }}"
+  loop:
+    - { protocol: tcp, direction: ingress, port_range_min: 80, port_range_max: 80 }       # HTTP
+    - { protocol: tcp, direction: ingress, port_range_min: 443, port_range_max: 443 }    # HTTPS
+    - { protocol: icmp, direction: ingress, ethertype: IPv4 }                            # ICMP
+    - { protocol: tcp, direction: ingress, port_range_min: 22, port_range_max: 22 }      # SSH

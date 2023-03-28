@@ -1,0 +1,53 @@
+---
+- name: Wait for instance to spawn and to become reachable
+  wait_for_connection:
+    timeout: 900
+
+- name: Install Apache2
+  apt:
+    name: apache2
+    state: present
+    update_cache: yes
+
+- name: Install PHP8.1
+  apt:
+    name: php8.1
+    state: present
+
+- name: Install PHP8.1 Apache module
+  apt:
+    name: libapache2-mod-php8.1
+    state: present
+
+- name: Install git
+  apt:
+    name: git
+    state: present
+    update_cache: yes
+
+- name: Stop Apache2 service
+  ansible.builtin.systemd:
+    name: apache2
+    state: stopped
+
+- name: Remove default /var/www/html content
+  ansible.builtin.file:
+    path: /var/www/html
+    state: absent
+
+- name: Create directory /var/www/html
+  file:
+    path: /var/www/html
+    state: directory
+    mode: '0755'
+
+- name: Copy index.php file
+  copy:
+    src: index.php
+    dest: /var/www/html/index.php
+
+- name: Start Apache2 service
+  ansible.builtin.systemd:
+    name: apache2
+    state: started
+    enabled: yes

@@ -1,0 +1,21 @@
+---
+- name: Create OpenStack servers
+  hosts: localhost
+  roles:
+    - role: private_key
+    - role: network
+    - role: server
+  tasks:
+
+- name: Install Apache2 and clone GitHub repository
+  hosts: tcr_webservers
+  become: yes
+  vars:
+    ansible_port: 22 # Force use of SSH port 22
+    ansible_ssh_user: ubuntu # Force use of SSH user ubuntu
+    ansible_ssh_extra_args: '-o StrictHostKeyChecking=no' # Disable SSH host key checking (Not recommended for production use!)
+  roles:
+    - role: webserver
+    - role: message
+
+

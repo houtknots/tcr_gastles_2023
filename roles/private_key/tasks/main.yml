@@ -1,0 +1,36 @@
+---
+- name: Check if private key exists
+  stat:
+    path: ~/.ssh/id_rsa
+  register: private_key_status
+
+- name: Generate private key for OpenStack
+  ansible.builtin.openssl_privatekey:
+    path: ~/.ssh/id_rsa
+    size: 4096
+    type: RSA
+  register: private_key
+  when: not private_key_status.stat.exists
+
+- name: Generate OpenSSH public key from private key
+  ansible.builtin.shell:
+    cmd: ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
+  args:
+    creates: ~/.ssh/id_rsa.pub
+
+- name: Read public key content
+  ansible.builtin.slurp:
+    src: ~/.ssh/id_rsa.pub
+  register: public_key_content
+
+- name: Import public key into OpenStack
+  os_keypair:
+    auth:
+      auth_url: "{{ lookup('env', 'OS_AUTH_URL') }}"
+      username: "{{ lookup('env', 'OS_USERNAME') }}"
+      password: "{{ lookup('env', 'OS_PASSWORD') }}"
+      project_name: "{{ lookup('env', 'OS_PROJECT_NAME') }}"
+      project_domain_name: "{{ lookup('env', 'OS_USER_DOMAIN_NAME') }}"
+    state: present
+    name: tcr-gastles-2023
+    public_key: "{{ public_key_content.content | b64decode }}"

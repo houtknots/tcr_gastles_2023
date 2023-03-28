@@ -1,0 +1,30 @@
+---
+- name: Create OpenStack servers
+  os_server:
+    auth:
+      auth_url: "{{ lookup('env', 'OS_AUTH_URL') }}"
+      username: "{{ lookup('env', 'OS_USERNAME') }}"
+      password: "{{ lookup('env', 'OS_PASSWORD') }}"
+      project_name: "{{ lookup('env', 'OS_PROJECT_NAME') }}"
+      project_domain_name: "{{ lookup('env', 'OS_USER_DOMAIN_NAME') }}"
+    state: present
+    name: "{{ item }}"
+    image: Ubuntu 22.04 (LTS)
+    key_name: tcr-gastles-2023
+    flavor: 1001
+    security_groups:
+      - tcr-gastles-security-group
+    nics:
+      - net-name: net-public
+      - net-name: tcr-gastles-2023
+  register: servers
+  with_items:
+    - tcr-webserver-1
+    - tcr-webserver-2
+
+- name: Add created OpenStack servers to inventory
+  add_host:
+    name: "{{ item }}"
+    groups: tcr_webservers
+    ansible_host: "{{ servers.results | selectattr('item', 'equalto', item) | map(attribute='openstack.public_v4') | first }}"
+  loop: "{{ servers.results | map(attribute='item') | list }}"
