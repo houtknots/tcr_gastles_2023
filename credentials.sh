@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-# Vul hier de gegevens in welke we net hebben opgehaald vanuit de OpenStack omgeving.
-export OS_PROJECT_ID="<Vul hier je Project ID in>"
-export OS_PROJECT_NAME="<Vul hier je Project Name in in>"
-
 # Vul hier je gebruikersnaams en wachtwoord in welke je aan het begin van de opdracht hebt ontvangen
 export OS_USERNAME="<Vul hier je gebruikersnaam in>"
 export OS_PASSWORD="<Vul hier je wachtwoord in>"
+
+# Vul hier de gegevens in welke we net hebben opgehaald vanuit de OpenStack omgeving.
+export OS_PROJECT_ID="<Vul hier je Project ID in>"
+export OS_PROJECT_NAME="<Vul hier je Project Name in in>"
 
 ##############
 # Alles wat hieronder staat hoef je niet aan te passen!
