@@ -1,2 +1,5 @@
 - debug:
-    msg: "Lekker bezig! https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+    msg: "Lekker bezig! https://l.jhcs.nl/moVhDpwc"
+
+- debug:
+    msg: "Je kunt {{ inventory_hostname }} bekijken via http://{{ ansible_ssh_host }}"
